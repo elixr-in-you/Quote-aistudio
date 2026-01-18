@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QuoteGenius AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -36,21 +37,176 @@
         body { background: white; }
         #root { margin: 0; padding: 0; }
         @page { margin: 0; size: auto; }
+        /* Hide scrollbars in print */
+        ::-webkit-scrollbar { display: none; }
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3"
-  }
-}
-</script>
-</head>
-  <body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
+      }
+    }
+    </script>
+    <script type="module" src="app.js" defer></script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+    
+    <!-- Navbar -->
+    <header class="bg-slate-900 text-white shadow-lg no-print sticky top-0 z-50">
+      <div class="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-brand-400 to-brand-600 rounded-lg flex items-center justify-center">
+            <i data-lucide="sparkles" class="text-white w-4 h-4"></i>
+          </div>
+          <span class="font-bold text-lg tracking-tight">QuoteGenius AI</span>
+        </div>
+        <button id="btn-print" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg transition font-medium text-sm">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Print / PDF</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Editor Column (Left) -->
+      <div class="lg:col-span-5 xl:col-span-4 space-y-6 no-print overflow-y-auto h-[calc(100vh-100px)] custom-scrollbar pr-2">
+        <div class="mb-4">
+           <h1 class="text-2xl font-bold text-slate-800">Create Quotation</h1>
+           <p class="text-slate-500 text-sm">Fill in the details below. Use AI to enhance your content.</p>
+        </div>
+
+        <!-- Configuration -->
+        <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Details</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Quote #</label>
+              <input type="text" data-model="id" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Currency</label>
+              <select id="select-currency" data-model="currency" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none transition">
+                <!-- Options populated by JS -->
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+              <input type="date" data-model="date" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Due Date</label>
+              <input type="date" data-model="dueDate" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none transition">
+            </div>
+          </div>
+        </section>
+
+        <!-- Business Info -->
+        <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Your Business</h2>
+          <div class="space-y-3">
+            <input placeholder="Business Name" data-model="business.name" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+            <input placeholder="Address" data-model="business.address" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+            <div class="grid grid-cols-2 gap-3">
+              <input placeholder="Email" data-model="business.email" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+              <input placeholder="Phone" data-model="business.phone" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <input placeholder="Website" data-model="business.website" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+        </section>
+
+        <!-- Client Info -->
+        <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Client</h2>
+          <div class="space-y-3">
+            <input placeholder="Client Name" data-model="client.name" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+            <input placeholder="Company Name" data-model="client.company" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+            <input placeholder="Email Address" data-model="client.email" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none">
+            <textarea placeholder="Billing Address" data-model="client.address" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none h-20 resize-none"></textarea>
+          </div>
+        </section>
+
+        <!-- Items (Dynamic) -->
+        <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-lg font-bold text-slate-800">Line Items</h2>
+            <button id="btn-add-item" class="flex items-center text-sm text-brand-600 hover:text-brand-700 font-medium transition">
+              <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Item
+            </button>
+          </div>
+          
+          <div id="items-list-container" class="space-y-4">
+            <!-- Items rendered via JS -->
+          </div>
+
+          <div class="mt-6 flex justify-end items-center gap-4">
+             <label class="text-sm font-medium text-slate-700">Tax Rate (%)</label>
+             <input type="number" data-model="taxRate" class="w-20 p-2 border border-slate-300 rounded text-right">
+          </div>
+        </section>
+
+        <!-- Footer Notes & AI Tools -->
+        <section class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-purple-100">
+           <h2 class="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
+            <i data-lucide="wand-2" class="w-5 h-5"></i> AI Tools
+          </h2>
+          
+          <div class="flex flex-wrap gap-3 mb-6">
+            <button id="btn-generate-terms" class="flex items-center px-4 py-2 bg-white border border-purple-200 text-purple-700 rounded-lg hover:bg-purple-50 transition shadow-sm">
+              <i data-lucide="wand-2" class="w-4 h-4 mr-2"></i> Generate Terms
+            </button>
+            <button id="btn-draft-email" class="flex items-center px-4 py-2 bg-white border border-purple-200 text-purple-700 rounded-lg hover:bg-purple-50 transition shadow-sm">
+              <i data-lucide="mail" class="w-4 h-4 mr-2"></i> Draft Email
+            </button>
+          </div>
+
+          <!-- Generated Email Output -->
+          <div id="email-result-container" class="hidden mt-4 bg-white p-4 rounded border border-purple-100 animate-fadeIn relative">
+             <h4 class="text-xs font-bold text-purple-400 uppercase mb-2">Generated Email Draft</h4>
+             <pre id="email-output" class="whitespace-pre-wrap text-sm text-slate-700 font-sans mb-2"></pre>
+             <button id="btn-copy-email" class="text-xs text-brand-600 hover:text-brand-700 font-medium">Copy & Close</button>
+          </div>
+
+          <div class="grid gap-4">
+             <div>
+               <label class="block text-sm font-medium text-slate-700 mb-1">Terms & Conditions</label>
+               <textarea data-model="terms" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none h-24 resize-y text-sm"></textarea>
+             </div>
+             <div>
+               <label class="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+               <textarea data-model="notes" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500 outline-none h-16 resize-y text-sm"></textarea>
+             </div>
+          </div>
+        </section>
+
+        <div class="text-xs text-slate-400 text-center pb-8">
+          AI features powered by Google Gemini
+        </div>
+
+      </div>
+
+      <!-- Preview Column (Right) -->
+      <div class="lg:col-span-7 xl:col-span-8 flex justify-center bg-slate-200/50 rounded-2xl p-4 md:p-8 border border-slate-200 overflow-y-auto print:border-none print:bg-white print:p-0 print:block print:w-full">
+         <div id="preview-container" class="w-full max-w-[210mm] print:max-w-none">
+            <!-- Preview rendered via JS -->
+         </div>
+      </div>
+    </main>
+
+    <button id="btn-print-mobile" class="fixed bottom-6 right-6 w-14 h-14 bg-brand-600 text-white rounded-full shadow-xl flex items-center justify-center lg:hidden z-50 no-print hover:bg-brand-500 transition">
+       <i data-lucide="printer" class="w-6 h-6"></i>
+    </button>
   </body>
 </html>
